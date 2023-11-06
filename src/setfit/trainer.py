@@ -16,7 +16,7 @@ from . import logging
 from .integrations import default_hp_search_backend, is_optuna_available, run_hp_search_optuna
 from .modeling import SupConLoss, sentence_pairs_generation, sentence_pairs_generation_multilabel
 from .utils import BestRun, default_hp_space_optuna
-from custom.validation_loss_evaluator import ValidationLossEvaluator
+from setfit.custom.validation_loss_evaluator import ValidationLossEvaluator
 
 if TYPE_CHECKING:
     import optuna
