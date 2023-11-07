@@ -123,6 +123,7 @@ class SetFitTrainer:
         self.distance_metric = distance_metric
         self.margin = margin
         self.samples_per_label = samples_per_label
+        self.__train_epoch_cumulative_loss = 0.0
 
         if model is None:
             if model_init is not None:
@@ -406,8 +407,14 @@ class SetFitTrainer:
             # sentence-transformers adaptation
             def log_training_progress(training_idx: int, epoch: int, steps: int,
                                       current_lr: float, loss_value: float) -> None:
-                self._log_training_progress(training_idx, epoch, steps, current_lr, loss_value,
-                                            self.sentence_transformer_history)
+                # Cumulate the loss for each step in the epoch
+                self.__train_epoch_cumulative_loss += loss_value
+                if steps == last_step_in_epoch:
+                    # This is the end of the epoch, log the average loss
+                    average_loss_in_epoch = self.__train_epoch_cumulative_loss / steps_per_epoch
+                    self._log_training_progress(training_idx, epoch, steps, current_lr, average_loss_in_epoch,
+                                                self.sentence_transformer_history)
+                    self.__train_epoch_cumulative_loss = 0.0
 
             def log_evaluating_progress(score: float, epoch: int, steps: int) -> None:
                 self._log_test_progress(epoch, steps, score, self.sentence_transformer_history)
@@ -470,6 +477,10 @@ class SetFitTrainer:
             evaluator = ValidationLossEvaluator(test_dataloader, train_loss)
 
             total_train_steps = len(train_dataloader) * num_epochs
+            train_objectives = [(train_dataloader, train_loss)]
+            dataloaders = [dataloader for dataloader, _ in train_objectives]
+            steps_per_epoch = min([len(dataloader) for dataloader in dataloaders])
+            last_step_in_epoch = steps_per_epoch - 1
             logger.info("***** Running training *****")
             logger.info(f"  Num examples = {len(train_examples)}")
             logger.info(f"  Num epochs = {num_epochs}")
@@ -478,7 +489,7 @@ class SetFitTrainer:
 
             warmup_steps = math.ceil(total_train_steps * self.warmup_proportion)
             self.model.model_body.fit(
-                train_objectives=[(train_dataloader, train_loss)],
+                train_objectives=train_objectives,
                 epochs=num_epochs,
                 optimizer_params={"lr": learning_rate},
                 warmup_steps=warmup_steps,
