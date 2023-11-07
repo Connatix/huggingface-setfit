@@ -62,7 +62,7 @@ class SetFitTrainerTest(TestCase):
             return SetFitModel.from_pretrained(model_name)
 
         dataset = Dataset.from_dict(
-            {"text": ["a", "b", "c"], "label": [0, 1, 2], "extra_column": ["d", "e", "f"]}
+            {"text": ["a", "b", "c", "d"], "label": [0, 1, 2, 3], "extra_column": ["d", "e", "f", "g"]}
         )
 
         num_epochs = 3
@@ -72,6 +72,7 @@ class SetFitTrainerTest(TestCase):
             eval_dataset=dataset,
             num_iterations=self.num_iterations,
             num_epochs=num_epochs,
+            batch_size=2,
         )
         trainer.train(log_steps=1)
         self.test_trainer_logging(trainer.sentence_transformer_history, num_epochs, "train")
