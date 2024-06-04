@@ -10,7 +10,7 @@ MAINTAINER = "Lewis Tunstall, Tom Aarsen"
 MAINTAINER_EMAIL = "lewis@huggingface.co"
 
 INTEGRATIONS_REQUIRE = ["optuna"]
-REQUIRED_PKGS = ["datasets>=2.3.0", "sentence-transformers @ git+https://github.com/zachschillaci27/sentence-transformers.git@generic-logging", "evaluate>=0.3.0"]
+REQUIRED_PKGS = ["datasets>=2.3.0", "sentence-transformers @ git+https://github.com/zachschillaci27/sentence-transformers.git@generic-logging", "evaluate>=0.3.0", "transformers==4.40.0"]
 QUALITY_REQUIRE = ["black", "flake8", "isort", "tabulate"]
 ONNX_REQUIRE = ["onnxruntime", "onnx", "skl2onnx"]
 OPENVINO_REQUIRE = ["hummingbird-ml<0.4.9", "openvino==2022.3.0"]
